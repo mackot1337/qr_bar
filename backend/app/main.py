@@ -93,5 +93,9 @@ def generate_barcode_endpoint(request: CodeRequest, db: Session = Depends(get_db
     
 @app.get("/history")
 def get_history(limit: int = 10, skip: int = 0, db: Session = Depends(get_db)):
+    total_count = db.query(CodeHistory).count()
     records = db.query(CodeHistory).order_by(CodeHistory.id.desc()).offset(skip).limit(limit).all()
-    return records
+    return {
+        "total": total_count,
+        "items": records
+    }
