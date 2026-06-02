@@ -23,7 +23,7 @@ def test_barcode_generator_handles_invalid_type_gracefully():
     generator = BarcodeGenerator()
     test_data = "12345"
     
-    result = generator.generate(data=test_data, barcode_type="nieistniejacy_typ")
+    with pytest.raises(ValueError) as exc_info:
+        generator.generate(data=test_data, barcode_type="nieistniejacy_typ")
 
-    assert isinstance(result, str)
-    assert len(result) > 0
+    assert "Nieobsługiwany typ kodu kreskowego" in str(exc_info.value)
