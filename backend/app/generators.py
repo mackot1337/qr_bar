@@ -75,6 +75,14 @@ class BarcodeGenerator(CodeGenerator):
         
         code = barcode_class(data, writer=writer)
         
+        fill_color = kwargs.get("fill_color", "black")
+        back_color = kwargs.get("back_color", "white")
+        
+        options = {
+            "foreground": fill_color,
+            "background": back_color
+        }
+        
         buffer = BytesIO()
-        code.write(buffer)
+        code.write(buffer, options=options)
         return self._encode_to_base64(buffer)
