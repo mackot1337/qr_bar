@@ -1,5 +1,5 @@
 import pytest
-from app.generators import QRCodeGenerator, BarcodeGenerator
+from app.generators import QRCodeGenerator, BarcodeGenerator, LogoProcessingException
 
 def test_qr_code_generator_returns_base64_string():
     generator = QRCodeGenerator()
@@ -27,3 +27,27 @@ def test_barcode_generator_handles_invalid_type_gracefully():
         generator.generate(data=test_data, barcode_type="nieistniejacy_typ")
 
     assert "Nieobsługiwany typ kodu kreskowego" in str(exc_info.value)
+
+def test_barcode_generator_with_colors():
+    generator = BarcodeGenerator()
+    test_data = "12345"
+
+    result = generator.generate(
+        data=test_data, 
+        barcode_type="code128", 
+        fill_color="red", 
+        back_color="blue"
+    )
+
+    assert isinstance(result, str)
+    assert len(result) > 100
+
+def test_qr_code_generator_invalid_logo():
+    generator = QRCodeGenerator()
+    test_data = "https://example.com"
+    bad_logo_base64 = "ToNieJestPrawidlowyBase64Obrazka"
+
+    with pytest.raises(LogoProcessingException) as exc_info:
+        generator.generate(data=test_data, logo_base64=bad_logo_base64)
+    
+    assert "Nie udało się nałożyć logo na kod QR" in str(exc_info.value)

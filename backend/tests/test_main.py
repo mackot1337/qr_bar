@@ -74,3 +74,34 @@ def test_history_pagination():
     assert "items" in data
     assert isinstance(data["items"], list)
     assert len(data["items"]) <= 1
+
+def test_generate_barcode_with_colors_success():
+    response = client.post("/generate/barcode", json={
+        "data": "1234567890128",
+        "barcode_type": "code128",
+        "fill_color": "#FF0000",
+        "back_color": "#00FF00"
+    })
+    assert response.status_code == 200
+    assert response.json()["type"] == "BARCODE"
+    assert response.json()["image_url"].startswith("data:image/png;base64,")
+
+def test_history_pagination_limits():
+    client.post("/generate/qr", json={"data": "test_limitow", "fill_color": "red"})
+    
+    response_invalid = client.get("/history?limit=150")
+    assert response_invalid.status_code == 422 
+
+    response_valid = client.get("/history?limit=3")
+    assert response_valid.status_code == 200
+    assert len(response_valid.json()["items"]) <= 3
+
+def test_generate_qr_logo_too_large():
+    """Test walidacji max wielkości Base64 dla logo"""
+    huge_base64 = "a" * 2_000_001
+    response = client.post("/generate/qr", json={
+        "data": "Test stringa",
+        "logo_base64": huge_base64
+    })
+    assert response.status_code == 422
+    assert "Przesłane logo jest zbyt duże" in str(response.json()["detail"])
