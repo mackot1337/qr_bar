@@ -37,6 +37,7 @@ backend/
 ├── Dockerfile          # Konfiguracja obrazu backendu
 ├── requirements.txt    # Definicja paczek i zależności Pythona
 └── run.sh              # Skrypt automatyzujący budowę i testy
+```
 
 ## Uruchomienie projektu
 
@@ -52,6 +53,7 @@ W terminalu wpisz:
 ```bash
 chmod +x run.sh
 ./run.sh
+```
 
 ### Opcja 2: Uruchomienie ręczne (Docker)
 Jeśli wolisz mieć pełną kontrolę krok po kroku:
@@ -59,12 +61,15 @@ Jeśli wolisz mieć pełną kontrolę krok po kroku:
 1. Skopiuj i w razie potrzeby dostosuj plik ze zmiennymi środowiskowymi:
    ```bash
    cp .env.example .env
+   ```
 2. Uruchom środowisko w tle
     ```bash
     docker compose up --build -d
+    ```
 3. Zweryfikuj poprawność działania aplikacji poprzez uruchomienie testów (opcjonalne):
     ```bash
     docker compose exec web pytest tests/
+    ```
 
 ### Opcja 3: Uruchomienie lokalne (bez Dockera)
 
@@ -72,11 +77,16 @@ Jeśli wolisz mieć pełną kontrolę krok po kroku:
     ```bash
     python -m venv venv
     source venv/bin/activate  # W systemie Windows użyj: venv\Scripts\activate
+    ```
 2. Zainstaluj zależności:
+    ```bash
     pip install -r requirements.txt
+    ```
 3. Skonfiguruj bazę danych. Zmień DATABASE_URL w pliku .env na bazę z której korzystasz lokalnie (np. na sqlite:///./test.db do szybkiego testu).
 4. Uruchom serwer developerski:
+    ```bash
     uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ```
 
 ## Dokumentacja API (Swagger)
 
