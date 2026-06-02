@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.generators import QRCodeGenerator, BarcodeGenerator, LogoProcessingException
 from app.database import engine, Base, get_db
 from app.models import CodeHistory
+from fastapi.middleware.cors import CORSMiddleware
 
 Base.metadata.create_all(bind=engine)
 
@@ -12,6 +13,14 @@ app = FastAPI(
     title="QR & Barcode API",
     description="Prototyp API do generowania kodów dla Reacta",
     version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 qr_service = QRCodeGenerator()
