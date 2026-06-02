@@ -1,5 +1,5 @@
 from enum import Enum
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Query
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 from app.generators import QRCodeGenerator, BarcodeGenerator, LogoProcessingException
@@ -80,10 +80,18 @@ def generate_barcode_endpoint(request: CodeRequest, db: Session = Depends(get_db
     try:
         img_base64 = barcode_service.generate(
             data=request.data, 
-            barcode_type=request.barcode_type.value
+            barcode_type=request.barcode_type.value,
+            fill_color=request.fill_color,
+            back_color=request.back_color
         )
         
-        db_record = CodeHistory(code_type="BARCODE", data=request.data, barcode_type=request.barcode_type.value)
+        db_record = CodeHistory(
+            code_type="BARCODE", 
+            data=request.data, 
+            barcode_type=request.barcode_type.value,
+            fill_color=request.fill_color,
+            back_color=request.back_color
+        )
         db.add(db_record)
         db.commit()
         
@@ -92,7 +100,11 @@ def generate_barcode_endpoint(request: CodeRequest, db: Session = Depends(get_db
         raise HTTPException(status_code=400, detail=f"Błąd generowania Barcode: {str(e)}")
     
 @app.get("/history")
-def get_history(limit: int = 10, skip: int = 0, db: Session = Depends(get_db)):
+def get_history(
+    skip: int = Query(0, ge=0, description="Liczba pominiętych rekordów"),
+    limit: int = Query(10, ge=1, le=100, description="Liczba rekordów (maksymalnie 100)"), 
+    db: Session = Depends(get_db)
+):
     total_count = db.query(CodeHistory).count()
     records = db.query(CodeHistory).order_by(CodeHistory.id.desc()).offset(skip).limit(limit).all()
     return {
