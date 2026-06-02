@@ -92,6 +92,6 @@ def generate_barcode_endpoint(request: CodeRequest, db: Session = Depends(get_db
         raise HTTPException(status_code=400, detail=f"Błąd generowania Barcode: {str(e)}")
     
 @app.get("/history")
-def get_history(limit: int = 10, db: Session = Depends(get_db)):
-    records = db.query(CodeHistory).order_by(CodeHistory.id.desc()).limit(limit).all()
+def get_history(limit: int = 10, skip: int = 0, db: Session = Depends(get_db)):
+    records = db.query(CodeHistory).order_by(CodeHistory.id.desc()).offset(skip).limit(limit).all()
     return records
