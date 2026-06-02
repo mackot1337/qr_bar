@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 import qrcode
 import barcode
 from barcode.writer import ImageWriter
+from PIL import Image
 
 class CodeGenerator(ABC):
     @abstractmethod

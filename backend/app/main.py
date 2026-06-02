@@ -21,7 +21,7 @@ class CodeRequest(BaseModel):
     fill_color: str = "black"
     back_color: str = "white"
     barcode_type: str = "code128"
-    logo_base64: str = None
+    logo_base64: str | None = None
 
 @app.post("/generate/qr")
 def generate_qr_endpoint(request: CodeRequest, db: Session = Depends(get_db)):
