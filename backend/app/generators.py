@@ -1,10 +1,16 @@
 import base64
+import logging
 from io import BytesIO
 from abc import ABC, abstractmethod
 import qrcode
 import barcode
 from barcode.writer import ImageWriter
 from PIL import Image
+
+logger = logging.getLogger(__name__)
+
+class LogoProcessingException(Exception):
+    pass
 
 class CodeGenerator(ABC):
     @abstractmethod
@@ -50,7 +56,8 @@ class QRCodeGenerator(CodeGenerator):
                 pos = ((img.size[0] - logo.size[0]) // 2, (img.size[1] - logo.size[1]) // 2)
                 img.paste(logo, pos, mask=logo)
             except Exception as e:
-                print(f"Błąd podczas wklejania logo: {e}")
+                logger.error(f"Krytyczny błąd podczas wklejania logo: {e}", exc_info=True)
+                raise LogoProcessingException("Nie udało się nałożyć logo na kod QR. Upewnij się, że to poprawny plik graficzny.")
 
         buffer = BytesIO()
         img.save(buffer, format="PNG")
