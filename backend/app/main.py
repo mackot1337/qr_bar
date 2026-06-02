@@ -36,8 +36,8 @@ class BarcodeTypeEnum(str, Enum):
 
 class CodeRequest(BaseModel):
     data: str = Field(..., min_length=1, max_length=2000, description="Tekst do zakodowania (max 2000 znaków).")
-    fill_color: str = Field("black", pattern=r"^[a-zA-Z]+$|^#[0-9a-fA-F]{6}$", description="Nazwa koloru (np. black) lub format HEX (#000000)")
-    back_color: str = Field("white", pattern=r"^[a-zA-Z]+$|^#[0-9a-fA-F]{6}$")
+    fill_color: str = Field("black", pattern=r"^([a-zA-Z]+|#[0-9a-fA-F]{3}|#[0-9a-fA-F]{4}|#[0-9a-fA-F]{6}|#[0-9a-fA-F]{8})$")
+    back_color: str = Field("white", pattern=r"^([a-zA-Z]+|#[0-9a-fA-F]{3}|#[0-9a-fA-F]{4}|#[0-9a-fA-F]{6}|#[0-9a-fA-F]{8})$")
     barcode_type: BarcodeTypeEnum = BarcodeTypeEnum.code128
     logo_base64: str | None = Field(None, description="Logo w formacie Base64")
 

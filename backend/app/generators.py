@@ -35,7 +35,7 @@ class QRCodeGenerator(CodeGenerator):
         qr.add_data(data)
         qr.make(fit=True)
 
-        img = qr.make_image(fill_color=fill_color, back_color=back_color).convert("RGB")
+        img = qr.make_image(fill_color=fill_color, back_color=back_color).convert("RGBA")
 
         if logo_base64:
             try:
@@ -68,7 +68,7 @@ class BarcodeGenerator(CodeGenerator):
     def generate(self, data: str, barcode_type: str = "code128", **kwargs) -> str:
 
         if barcode_type not in barcode.PROVIDED_BARCODES:
-            barcode_type = "code128"
+            raise ValueError(f"Nieobsługiwany typ kodu kreskowego: {barcode_type}")
             
         barcode_class = barcode.get_barcode_class(barcode_type)
         writer = ImageWriter()
