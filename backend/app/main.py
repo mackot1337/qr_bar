@@ -21,6 +21,7 @@ class CodeRequest(BaseModel):
     fill_color: str = "black"
     back_color: str = "white"
     barcode_type: str = "code128"
+    logo_base64: str = None
 
 @app.post("/generate/qr")
 def generate_qr_endpoint(request: CodeRequest, db: Session = Depends(get_db)):
@@ -28,10 +29,16 @@ def generate_qr_endpoint(request: CodeRequest, db: Session = Depends(get_db)):
         img_base64 = qr_service.generate(
             data=request.data, 
             fill_color=request.fill_color, 
-            back_color=request.back_color
+            back_color=request.back_color,
+            logo_base64=request.logo_base64
         )
         
-        db_record = CodeHistory(code_type="QR", data=request.data)
+        db_record = CodeHistory(
+            code_type="QR", 
+            data=request.data,
+            fill_color=request.fill_color,
+            back_color=request.back_color
+        )
         db.add(db_record)
         db.commit()
         
@@ -47,7 +54,7 @@ def generate_barcode_endpoint(request: CodeRequest, db: Session = Depends(get_db
             barcode_type=request.barcode_type
         )
         
-        db_record = CodeHistory(code_type="BARCODE", data=request.data)
+        db_record = CodeHistory(code_type="BARCODE", data=request.data, barcode_type=request.barcode_type)
         db.add(db_record)
         db.commit()
         
