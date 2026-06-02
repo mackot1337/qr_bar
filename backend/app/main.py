@@ -54,3 +54,8 @@ def generate_barcode_endpoint(request: CodeRequest, db: Session = Depends(get_db
         return {"type": "BARCODE", "image_url": f"data:image/png;base64,{img_base64}"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Błąd generowania Barcode: {str(e)}")
+    
+@app.get("/history")
+def get_history(limit: int = 10, db: Session = Depends(get_db)):
+    records = db.query(CodeHistory).order_by(CodeHistory.id.desc()).limit(limit).all()
+    return records
