@@ -1,6 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 from app.generators import QRCodeGenerator, BarcodeGenerator
+from app.database import engine, Base, get_db
+from app.models import CodeHistory
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="QR & Barcode API",
@@ -18,24 +23,34 @@ class CodeRequest(BaseModel):
     barcode_type: str = "code128"
 
 @app.post("/generate/qr")
-def generate_qr_endpoint(request: CodeRequest):
+def generate_qr_endpoint(request: CodeRequest, db: Session = Depends(get_db)):
     try:
         img_base64 = qr_service.generate(
             data=request.data, 
             fill_color=request.fill_color, 
             back_color=request.back_color
         )
+        
+        db_record = CodeHistory(code_type="QR", data=request.data)
+        db.add(db_record)
+        db.commit()
+        
         return {"type": "QR", "image_url": f"data:image/png;base64,{img_base64}"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Błąd generowania QR: {str(e)}")
 
 @app.post("/generate/barcode")
-def generate_barcode_endpoint(request: CodeRequest):
+def generate_barcode_endpoint(request: CodeRequest, db: Session = Depends(get_db)):
     try:
         img_base64 = barcode_service.generate(
             data=request.data, 
             barcode_type=request.barcode_type
         )
+        
+        db_record = CodeHistory(code_type="BARCODE", data=request.data)
+        db.add(db_record)
+        db.commit()
+        
         return {"type": "BARCODE", "image_url": f"data:image/png;base64,{img_base64}"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Błąd generowania Barcode: {str(e)}")
