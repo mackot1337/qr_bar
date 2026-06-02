@@ -67,5 +67,10 @@ def test_history_pagination():
     
     response = client.get("/history?limit=1&skip=0")
     assert response.status_code == 200
-    assert isinstance(response.json(), list)
-    assert len(response.json()) <= 1
+
+    data = response.json()
+    
+    assert "total" in data
+    assert "items" in data
+    assert isinstance(data["items"], list)
+    assert len(data["items"]) <= 1
