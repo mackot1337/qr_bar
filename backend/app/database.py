@@ -1,10 +1,8 @@
-import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from app.config import settings
 
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://myuser:mypassword@db:5433/qrcode_db")
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(settings.database_url)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
