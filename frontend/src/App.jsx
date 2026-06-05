@@ -8,6 +8,8 @@ function App() {
   const [error, setError] = useState('')
   const [inputType, setInputType] = useState('qr')
   const [barcodeType, setBarcodeType] = useState('code128')
+  const [fillColor, setFillColor] = useState('#000000')
+  const [backColor, setBackColor] = useState('#ffffff')
 
   const generateCode = async (e) => {
     e.preventDefault()
@@ -22,8 +24,8 @@ function App() {
       const endpoint = inputType === 'qr' ? 'qr' : 'barcode'
       const payload = {
         data: data,
-        fill_color: 'black',
-        back_color: 'white',
+        fill_color: fillColor,
+        back_color: backColor,
         barcode_type: barcodeType
       }
       
@@ -65,6 +67,44 @@ function App() {
               onChange={(e) => setInputType(e.target.value)} 
             /> Barcode
           </label>
+        </div>
+
+        <div style={{ display: 'flex', gap: '15px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '5px' }}>
+            <label style={{ fontSize: '14px' }}>Fill Color:</label>
+            <div style={{ display: 'flex' }}>
+              <input 
+                type="text" 
+                value={fillColor} 
+                onChange={(e) => setFillColor(e.target.value)} 
+                style={{ flex: 1, padding: '8px', fontSize: '14px', border: '1px solid #ccc', borderRight: 'none', borderRadius: '4px 0 0 4px', margin: 0 }}
+              />
+              <input 
+                type="color" 
+                value={fillColor} 
+                onChange={(e) => setFillColor(e.target.value)} 
+                style={{ width: '40px', padding: '0', border: '1px solid #ccc', borderRadius: '0 4px 4px 0', cursor: 'pointer', height: '37px', margin: 0 }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '5px' }}>
+            <label style={{ fontSize: '14px' }}>Back Color:</label>
+            <div style={{ display: 'flex' }}>
+              <input 
+                type="text" 
+                value={backColor} 
+                onChange={(e) => setBackColor(e.target.value)} 
+                style={{ flex: 1, padding: '8px', fontSize: '14px', border: '1px solid #ccc', borderRight: 'none', borderRadius: '4px 0 0 4px', margin: 0 }}
+              />
+              <input 
+                type="color" 
+                value={backColor} 
+                onChange={(e) => setBackColor(e.target.value)} 
+                style={{ width: '40px', padding: '0', border: '1px solid #ccc', borderRadius: '0 4px 4px 0', cursor: 'pointer', height: '37px', margin: 0 }}
+              />
+            </div>
+          </div>
         </div>
 
         {inputType === 'barcode' && (
