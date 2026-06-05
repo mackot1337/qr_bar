@@ -10,6 +10,27 @@ function App() {
   const [barcodeType, setBarcodeType] = useState('code128')
   const [fillColor, setFillColor] = useState('#000000')
   const [backColor, setBackColor] = useState('#ffffff')
+  const [logoBase64, setLogoBase64] = useState('')
+  const [logoName, setLogoName] = useState('')
+  const [logoPreview, setLogoPreview] = useState('')
+
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setLogoName(file.name)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setLogoPreview(reader.result)
+        const base64String = reader.result.split(',')[1]
+        setLogoBase64(base64String)
+      }
+      reader.readAsDataURL(file)
+    } else {
+      setLogoName('')
+      setLogoBase64('')
+      setLogoPreview('')
+    }
+  }
 
   const generateCode = async (e) => {
     e.preventDefault()
@@ -26,7 +47,8 @@ function App() {
         data: data,
         fill_color: fillColor,
         back_color: backColor,
-        barcode_type: barcodeType
+        barcode_type: barcodeType,
+        ...(inputType === 'qr' && logoBase64 ? { logo_base64: logoBase64 } : {})
       }
       
       const response = await axios.post(`http://localhost:8000/generate/${endpoint}`, payload)
@@ -123,6 +145,32 @@ function App() {
               <option value="isbn13">ISBN-13</option>
               <option value="upca">UPC-A (11 or 12 digits)</option>
             </select>
+          </div>
+        )}
+
+        {inputType === 'qr' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid #ddd', padding: '10px', borderRadius: '4px' }}>
+            <label style={{ fontSize: '14px', fontWeight: 'bold' }}>Logo Upload (Optional)</label>
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleLogoUpload} 
+              style={{ fontSize: '14px' }}
+            />
+            {logoName && (
+              <div style={{ marginTop: '5px', fontSize: '13px', color: '#555' }}>
+                <strong>Selected: </strong> {logoName}
+              </div>
+            )}
+            {logoPreview && (
+              <div style={{ marginTop: '5px' }}>
+                <img 
+                  src={logoPreview} 
+                  alt="Logo Preview" 
+                  style={{ maxWidth: '80px', maxHeight: '80px', objectFit: 'contain', border: '1px solid #eee', padding: '2px', backgroundColor: 'white' }} 
+                />
+              </div>
+            )}
           </div>
         )}
         
