@@ -19,7 +19,6 @@ Interfejs komunikuje się asynchronicznie z serwerem (FastAPI) za pomocą klient
 * **Wgrywanie Logo (Opcja QR):** Możliwość zaimportowania pliku graficznego, który zostanie przekonwertowany na Base64 i zintegrowany z wygenerowanym kodem QR.
 * **Obsługa Błędów:** Czytelne komunikaty walidacyjne w przypadku problemów z połączeniem lub podania błędnych parametrów.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 # QR & Barcode Generator - Frontend Interface
 
 Ta część projektu stanowi graficzny interfejs użytkownika (GUI) dla generatora kodów QR oraz kodów kreskowych. Została zbudowana przy użyciu nowoczesnego stacku technologicznego skupionego wokół biblioteki **React**.
