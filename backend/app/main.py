@@ -62,7 +62,8 @@ def generate_qr_endpoint(request: CodeRequest, db: Session = Depends(get_db)):
             code_type="QR", 
             data=request.data,
             fill_color=request.fill_color,
-            back_color=request.back_color
+            back_color=request.back_color,
+            image_base64=img_base64
         )
         db.add(db_record)
         db.commit()
@@ -90,7 +91,8 @@ def generate_barcode_endpoint(request: CodeRequest, db: Session = Depends(get_db
             data=request.data, 
             barcode_type=request.barcode_type.value,
             fill_color=request.fill_color,
-            back_color=request.back_color
+            back_color=request.back_color,
+            image_base64=img_base64
         )
         db.add(db_record)
         db.commit()
