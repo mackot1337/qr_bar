@@ -141,3 +141,16 @@ def generate_barcode_endpoint(request: CodeRequest, db: Session = Depends(get_db
     except Exception as e:
         logger.error(f"Krytyczny błąd serwera (Barcode): {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Wewnętrzny błąd serwera przy generowaniu.")
+    
+@app.get("/history")
+def get_history(
+    skip: int = Query(0, ge=0, description="Liczba pominiętych rekordów"),
+    limit: int = Query(10, ge=1, le=100, description="Liczba rekordów (maksymalnie 100)"), 
+    db: Session = Depends(get_db)
+):
+    total_count = db.query(CodeHistory).count()
+    records = db.query(CodeHistory).order_by(CodeHistory.id.desc()).offset(skip).limit(limit).all()
+    return {
+        "total": total_count,
+        "items": records
+    }
