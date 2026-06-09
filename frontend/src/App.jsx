@@ -13,6 +13,7 @@ function App() {
   const [logoBase64, setLogoBase64] = useState('')
   const [logoName, setLogoName] = useState('')
   const [logoPreview, setLogoPreview] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   
   const [history, setHistory] = useState([])
   const [totalHistory, setTotalHistory] = useState(0)
@@ -109,6 +110,8 @@ function App() {
       }
     }
 
+    setIsLoading(true)
+
     try {
       setError('')
       setImageUrl('')
@@ -152,6 +155,8 @@ function App() {
       } else {
         setError('Wystąpił błąd serwera lub brak połączenia z API.');
       }
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -277,7 +282,9 @@ function App() {
               </div>
             )}
             
-            <button type="submit" className="btn-primary">Generuj Kod</button>
+            <button type="submit" className={`btn-primary ${isLoading ? 'loading' : ''}`} disabled={isLoading}>
+              {isLoading ? 'Generowanie...' : 'Generuj Kod'}
+            </button>
           </form>
           {error && <div className="error-message">{error}</div>}
         </div>
