@@ -34,22 +34,51 @@ function App() {
     fetchHistory(skip)
   }, [skip])
 
-  const handleLogoUpload = (e) => {
+ const handleLogoUpload = (e) => {
     const file = e.target.files[0]
-    if (file) {
-      setLogoName(file.name)
-      const reader = new FileReader()
-      reader.onloadend = () => {
+    
+    if (!file) {
+      setLogoName('')
+      setLogoBase64('')
+      setLogoPreview('')
+      return
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setError('Błąd: Wybrane logo jest za duże. Maksymalny rozmiar to 2 MB.')
+      e.target.value = ''
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      
+      const img = new Image()
+      img.onload = () => {
+        const width = img.width
+        const height = img.height
+        const ratio = width / height
+
+        if (ratio > 1.8 || ratio < 0.5) {
+          setError(`Błąd: Proporcje obrazka (${width}x${height}) są nieodpowiednie. Do kodu QR używaj obrazków zbliżonych kształtem do kwadratu.`)
+          setLogoName('')
+          setLogoBase64('')
+          setLogoPreview('')
+          e.target.value = ''
+          return
+        }
+
+        setError('') 
+        setLogoName(file.name)
         setLogoPreview(reader.result)
         const base64String = reader.result.split(',')[1]
         setLogoBase64(base64String)
       }
-      reader.readAsDataURL(file)
-    } else {
-      setLogoName('')
-      setLogoBase64('')
-      setLogoPreview('')
+      
+      img.src = reader.result
     }
+    
+    reader.readAsDataURL(file)
   }
 
   const generateCode = async (e) => {
