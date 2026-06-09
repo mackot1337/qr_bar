@@ -106,8 +106,23 @@ function App() {
       }
       
     } catch (err) {
-      setError('Generowanie nie powiodło się. Sprawdź format danych.')
       console.error(err)
+
+      if (err.response && err.response.status === 422) {
+        const detail = err.response.data.detail;
+        
+        if (Array.isArray(detail)) {
+          setError(`Błąd formatu: ${detail[0].msg}`);
+        } 
+        else if (typeof detail === 'string') {
+          setError(`Uwaga: ${detail}`);
+        } 
+        else {
+          setError('Nieprawidłowe dane. Sprawdź formularz.');
+        }
+      } else {
+        setError('Wystąpił błąd serwera lub brak połączenia z API.');
+      }
     }
   }
 
