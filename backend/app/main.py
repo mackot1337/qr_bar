@@ -40,6 +40,7 @@ class CodeRequest(BaseModel):
     back_color: str = Field("white", pattern=r"^([a-zA-Z]+|#[0-9a-fA-F]{3}|#[0-9a-fA-F]{4}|#[0-9a-fA-F]{6}|#[0-9a-fA-F]{8})$")
     barcode_type: BarcodeTypeEnum = BarcodeTypeEnum.code128
     logo_base64: str | None = Field(None, description="Logo w formacie Base64")
+    logo_name: str | None = Field(None, description="Nazwa pliku logo")
 
     @field_validator('logo_base64')
     @classmethod
@@ -63,7 +64,9 @@ def generate_qr_endpoint(request: CodeRequest, db: Session = Depends(get_db)):
             data=request.data,
             fill_color=request.fill_color,
             back_color=request.back_color,
-            image_base64=img_base64
+            image_base64=img_base64,
+            logo_base64=request.logo_base64,
+            logo_name=request.logo_name
         )
         db.add(db_record)
         db.commit()

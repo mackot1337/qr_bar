@@ -90,7 +90,10 @@ function App() {
         fill_color: fillColor,
         back_color: backColor,
         barcode_type: barcodeType,
-        ...(inputType === 'qr' && logoBase64 ? { logo_base64: logoBase64 } : {})
+        ...(inputType === 'qr' && logoBase64 ? { 
+          logo_base64: logoBase64,
+          logo_name: logoName
+        } : {})
       }
       
       const response = await axios.post(`http://localhost:8000/generate/${endpoint}`, payload)
@@ -119,9 +122,15 @@ function App() {
     if (item.barcode_type) setBarcodeType(item.barcode_type);
 
     if (codeTypeLower === 'qr') {
-      setLogoName('');
-      setLogoBase64('');
-      setLogoPreview('');
+      if (item.logo_base64) {
+        setLogoBase64(item.logo_base64);
+        setLogoPreview(`data:image/png;base64,${item.logo_base64}`);
+        setLogoName(item.logo_name || 'logo_z_historii.png');
+      } else {
+        setLogoName('');
+        setLogoBase64('');
+        setLogoPreview('');
+      }
     }
 
     if (item.image_base64) {

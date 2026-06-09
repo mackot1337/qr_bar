@@ -14,5 +14,7 @@ class CodeHistory(Base):
     barcode_type = Column(String, default="code128")
 
     image_base64 = Column(Text, nullable=True)
+    logo_base64 = Column(Text, nullable=True)
+    logo_name = Column(String, nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
