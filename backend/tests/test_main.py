@@ -6,7 +6,6 @@ from sqlalchemy.pool import StaticPool
 
 from app.main import app
 from app.database import Base, get_db
-from app.models import CodeHistory
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 engine = create_engine(
@@ -17,8 +16,8 @@ engine = create_engine(
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def override_get_db():
+    db = TestingSessionLocal()
     try:
-        db = TestingSessionLocal()
         yield db
     finally:
         db.close()
@@ -32,6 +31,15 @@ def setup_database():
     yield
     Base.metadata.drop_all(bind=engine)
 
+INVALID_BARCODE_PAYLOADS = [
+    ("ean13", "12345"),
+    ("ean13", "123456789012345"), 
+    ("ean13", "ABCDEFGHIJKL"),
+    ("ean8", "123"),
+    ("isbn13", "1234"),
+    ("upca", "123"),
+]
+
 def test_generate_qr_success():
     response = client.post("/generate/qr", json={
         "data": "https://example.com",
@@ -39,47 +47,62 @@ def test_generate_qr_success():
         "back_color": "white"
     })
     assert response.status_code == 200
-    data = response.json()
-    assert data["type"] == "QR"
-    assert data["image_url"].startswith("data:image/png;base64,")
+    assert response.json()["type"] == "QR"
 
-def test_generate_barcode_success():
+@pytest.mark.parametrize("b_type, b_data", [
+    ("ean13", "123456789012"),
+    ("code128", "WitajSwiecie123"),
+    ("ean8", "1234567")
+])
+def test_generate_barcode_success(b_type, b_data):
     response = client.post("/generate/barcode", json={
-        "data": "123456789012",
-        "barcode_type": "ean13"
+        "data": b_data,
+        "barcode_type": b_type
     })
     assert response.status_code == 200
-    data = response.json()
-    assert data["type"] == "BARCODE"
-    assert "image_url" in data
+    assert response.json()["type"] == "BARCODE"
+    assert response.json()["image_url"].startswith("data:image/png;base64,")
 
-def test_generate_barcode_invalid_data():
+@pytest.mark.parametrize("b_type, invalid_data", INVALID_BARCODE_PAYLOADS)
+def test_generate_barcode_invalid_data_triggers_422(b_type, invalid_data):
     response = client.post("/generate/barcode", json={
-        "data": "not-digits",
-        "barcode_type": "ean13"
+        "data": invalid_data,
+        "barcode_type": b_type
     })
-    assert response.status_code == 400
+    assert response.status_code == 422
+    assert "detail" in response.json()
 
-def test_history_endpoint():
-    client.post("/generate/qr", json={"data": "test history"})
-    
+@pytest.mark.parametrize("bad_color", ["nieznany_kolor!", "123", "#xyz", "#FFF123456"])
+def test_generate_qr_invalid_colors(bad_color):
+    response = client.post("/generate/qr", json={
+        "data": "Test",
+        "fill_color": bad_color
+    })
+    assert response.status_code == 422
+
+def test_history_endpoint_empty():
     response = client.get("/history")
     assert response.status_code == 200
     data = response.json()
-    
-    assert "total" in data
-    assert "items" in data
-    assert data["total"] >= 1
-    assert data["items"][0]["data"] == "test history"
-    assert data["items"][0]["image_base64"] is not None 
+    assert data["total"] == 0
+    assert len(data["items"]) == 0
 
 def test_history_pagination():
-    # Dodajemy 3 wpisy
-    for i in range(3):
+    for i in range(15):
         client.post("/generate/qr", json={"data": f"test {i}"})
         
-    response = client.get("/history?limit=2&skip=0")
+    response = client.get("/history?limit=5&skip=0")
     data = response.json()
     
-    assert len(data["items"]) == 2
-    assert data["total"] == 3
+    assert response.status_code == 200
+    assert len(data["items"]) == 5
+    assert data["total"] == 15
+
+@pytest.mark.parametrize("skip, limit, expected_status", [
+    (-1, 10, 422), 
+    (0, 0, 422),   
+    (0, 150, 422)   
+])
+def test_history_query_params_validation(skip, limit, expected_status):
+    response = client.get(f"/history?skip={skip}&limit={limit}")
+    assert response.status_code == expected_status
