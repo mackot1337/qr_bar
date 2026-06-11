@@ -70,7 +70,7 @@ Pokrycie kluczowych funkcji generujących oraz endpointów HTTP testami automaty
 
 ---
 
-# 📂 Struktura Projektu
+# Struktura Projektu
 
 ```text
 qr_bar-frontend/
@@ -285,7 +285,7 @@ Obsługuje paginację wyników.
 
 ---
 
-# ✅ Najważniejsze Funkcjonalności
+# Najważniejsze Funkcjonalności
 
 * Generowanie kodów QR.
 * Generowanie kodów kreskowych.
