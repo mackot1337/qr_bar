@@ -96,7 +96,7 @@ qr_bar-frontend/
 
 ---
 
-# 🚀 Uruchomienie Projektu
+# Uruchomienie Projektu
 
 ## Wymagania Wstępne
 
