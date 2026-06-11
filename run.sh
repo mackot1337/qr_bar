@@ -24,7 +24,7 @@ echo "[3/3] Uruchamianie testów automatycznych backendu..."
 docker compose exec web pytest tests/
 
 echo "======================================================="
-echo " Sukces! Cały projekt działa teraz w pełni kontenerowo:"
+echo " Sukces! Aplikacja jest gotowa:"
 echo " - Frontend (React + Vite): http://localhost:5173"
 echo " - Backend (FastAPI API):    http://localhost:8000"
 echo " - Dokumentacja Swagger:     http://localhost:8000/docs"
