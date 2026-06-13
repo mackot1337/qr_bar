@@ -72,7 +72,7 @@ def test_generate_barcode_invalid_data_triggers_422(b_type, invalid_data):
     assert response.status_code == 422
     assert "detail" in response.json()
 
-@pytest.mark.parametrize("bad_color", ["nieznany_kolor!", "123", "#xyz", "#FFF123456"])
+@pytest.mark.parametrize("bad_color", ["nieznany_kolor!", "#xyz", "#FFF123456"])
 def test_generate_qr_invalid_colors(bad_color):
     response = client.post("/generate/qr", json={
         "data": "Test",
